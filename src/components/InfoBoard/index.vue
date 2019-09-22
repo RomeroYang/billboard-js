@@ -144,6 +144,7 @@
 
 <script>
 import { get } from "lodash";
+import api from "@/utils/api";
 
 export default {
   props: {
@@ -170,7 +171,7 @@ export default {
     },
     onClick: function() {
       const boardOwner = false;
-      if (!boardOwner) {
+      if (boardOwner) {
         this.buy();
       } else {
         this.update();
@@ -188,6 +189,9 @@ export default {
     },
     onSubmit: function() {
       console.log("ok");
+      api.getApi().rpc.chain.subscribeNewHeads(header => {
+        console.log(`Chain is at #${header.number}`);
+      });
     }
   }
 };
