@@ -76,7 +76,7 @@
         >Cancel</el-button>
         <el-button
           round
-          @click="onSubmit"
+          @click="bid"
           class="btn-ok"
         >Ok</el-button>
       </span>
@@ -134,7 +134,7 @@
         >Cancel</el-button>
         <el-button
           round
-          @click="onSubmit"
+          @click="setBoard"
           class="btn-ok"
         >Ok</el-button>
       </span>
@@ -187,10 +187,40 @@ export default {
     onClose: function() {
       this.form = {};
     },
-    onSubmit: function() {
-      console.log("ok");
-      api.getApi().rpc.chain.subscribeNewHeads(header => {
-        console.log(`Chain is at #${header.number}`);
+    bid: function() {
+      console.log("bid");
+      const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+      const tx = api.getApi().tx.banners.bid(this.ad.id, this.form.price);
+      transfer.signAndSend(ALICE, ({ events = [], status }) => {
+        if (status.isFinalized) {
+          console.log(
+            "Successful transfer of " +
+              randomAmount +
+              " with hash " +
+              status.asFinalized.toHex()
+          );
+        } else {
+          console.log("Status of transfer: " + status.type);
+        }
+      });
+    },
+    setBoard: function() {
+      console.log("setBoard");
+      const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+      const tx = api
+        .getApi()
+        .tx.banners.setImageUrl(this.ad.id, this.form.content);
+      transfer.signAndSend(ALICE, ({ events = [], status }) => {
+        if (status.isFinalized) {
+          console.log(
+            "Successful transfer of " +
+              randomAmount +
+              " with hash " +
+              status.asFinalized.toHex()
+          );
+        } else {
+          console.log("Status of transfer: " + status.type);
+        }
       });
     }
   }
