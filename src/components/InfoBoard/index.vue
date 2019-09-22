@@ -22,36 +22,172 @@
         <div class="right">
           <div
             class="btn"
-            @click="buy"
+            @click="onClick"
           >Buy It !</div>
         </div>
       </div>
     </div>
+
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="showDialogBuy"
+      append-to-body
+      width="600px"
+      :close-on-click-modal="false"
+      @closed="onClose"
+    >
+      <el-form
+        ref="form"
+        label-position="top"
+        :model="form"
+        @submit="onSubmit"
+      >
+        <div class="row-label">Price</div>
+        <div class="row-data">
+          <span>{{ get(ad, 'price') }}</span>
+        </div>
+        <div class="row-label">Taxes Ratio</div>
+        <div class="row-data">
+          <span>{{ get(ad, 'ratio') }}</span> / day
+        </div>
+        <el-form-item label="Pre payed taxes">
+          <el-input
+            v-model="form.prePay"
+            placeholder="Pre payed taxes"
+            type="number"
+            clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Content image url">
+          <el-input
+            v-model="form.content"
+            placeholder="Content image url"
+            clearable
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          round
+          @click="showDialogBuy = false"
+        >Cancel</el-button>
+        <el-button
+          round
+          @click="onSubmit"
+          class="btn-ok"
+        >Ok</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="showDialogPut"
+      append-to-body
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        ref="form"
+        label-position="top"
+        :model="form"
+        @submit="onSubmit"
+      >
+        <div class="row-label">Taxes Ratio</div>
+        <div class="row-data">
+          <span>{{ get(ad, 'ratio') }}</span> / day
+        </div>
+        <el-form-item label="Price">
+          <el-input
+            v-model="form.price"
+            placeholder="Price"
+            type="number"
+            clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Pre payed taxes">
+          <el-input
+            v-model="form.prePay"
+            placeholder="Pre payed taxes"
+            type="number"
+            clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="Content image url">
+          <el-input
+            v-model="form.content"
+            defaultValue="hhhhhh"
+            placeholder="Content image url"
+            clearable
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          round
+          @click="showDialogPut = false"
+        >Cancel</el-button>
+        <el-button
+          round
+          @click="onSubmit"
+          class="btn-ok"
+        >Ok</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
-
 
 <script>
 import { get } from "lodash";
 
 export default {
-  data: () => {
-    return {
-      animState: false
-    };
-  },
   props: {
     ad: Object,
-    title: String,
     sub: String
+  },
+  data: () => {
+    return {
+      animState: false,
+      showDialogBuy: false,
+      showDialogPut: false,
+      form: {}
+    };
+  },
+  computed: {
+    dialogTitle: function() {
+      return this.showDialogBuy ? "Buy the BillBorad" : "Update My Billboard";
+    }
   },
   methods: {
     get,
     animate: function() {
       this.animState = !this.animState;
     },
+    onClick: function() {
+      const boardOwner = false;
+      if (!boardOwner) {
+        this.buy();
+      } else {
+        this.update();
+      }
+    },
     buy: function() {
-      console.log("buy");
+      this.showDialogBuy = true;
+    },
+    update: function() {
+      this.showDialogPut = true;
+      this.form = { ...this.ad };
+    },
+    onClose: function() {
+      this.form = {};
+    },
+    onSubmit: function() {
+      console.log("ok");
     }
   }
 };
@@ -89,11 +225,6 @@ export default {
     height: 100%;
   }
 }
-.sub-title {
-  margin-left: 16px;
-  color: #606266;
-  font-weight: normal;
-}
 
 .btn {
   position: absolute;
@@ -108,17 +239,36 @@ export default {
   cursor: pointer;
 }
 
+.row-label {
+  margin-bottom: 22px;
+}
+.row-data {
+  margin-bottom: 22px;
+  span {
+    font-size: 20px;
+  }
+}
+
+.btn-ok {
+  background-color: #e6007a;
+  border-color: #e6007a;
+  color: white;
+  &:hover {
+    color: white;
+  }
+}
+
 @keyframes bounceInDown {
   from,
   60%,
   75%,
   90%,
   to {
-    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    animation-timing-function: cubic-bezier(0.115, 0.31, 0.355, 1);
   }
   0% {
     opacity: 0;
-    transform: translate3d(0, -3000px, 0);
+    transform: translate3d(0, -2000px, 0);
   }
   60% {
     opacity: 1;
