@@ -3,10 +3,10 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 // initialise via static create
 let api = {};
 // const wsProvider = new WsProvider('wss://poc-3.polkadot.io');
-const provider = new WsProvider('ws://127.0.0.1:9944/');
-ApiPromise.create({ provider }).then(res => {
-  api = res;
-});
+// const provider = new WsProvider('ws://127.0.0.1:9944/');
+// ApiPromise.create({ provider }).then(res => {
+//   api = res;
+// });
 
 // make a call to retrieve the current network head
 

@@ -16,11 +16,22 @@
         <div class="left">
           <div class="label">price: </div>
           <span class="num">{{ get(ad, 'price') }}</span>
+          <div
+            v-if="ad.id === 'ad0'"
+            class="label"
+          >owner: </div>
+          <div v-if="ad.id === 'ad0'">5Grwv......GKutQY</div>
           <!-- <div class="label">taxes ratio: </div>
           <span class="num">{{ get(ad, 'ratio') }}</span> / day -->
         </div>
         <div class="right">
           <div
+            v-if="ad.owner"
+            class="btn"
+            @click="onClick"
+          >Update My Billboard</div>
+          <div
+            v-else
             class="btn"
             @click="onClick"
           >Buy It !</div>
@@ -40,7 +51,7 @@
         ref="form"
         label-position="top"
         :model="form"
-        @submit="onSubmit"
+        @submit="bid"
       >
         <div class="row-label">Price</div>
         <div class="row-data">
@@ -50,10 +61,10 @@
         <div class="row-data">
           <span>{{ get(ad, 'ratio') }}</span> / day
         </div>
-        <el-form-item label="Pre payed taxes">
+        <el-form-item label="Pre payed tax">
           <el-input
             v-model="form.prePay"
-            placeholder="Pre payed taxes"
+            placeholder="Pre payed tax"
             type="number"
             clearable
           ></el-input>
@@ -93,7 +104,7 @@
         ref="form"
         label-position="top"
         :model="form"
-        @submit="onSubmit"
+        @submit="setBoard"
       >
         <div class="row-label">Taxes Ratio</div>
         <div class="row-data">
@@ -107,10 +118,10 @@
             clearable
           ></el-input>
         </el-form-item>
-        <el-form-item label="Pre payed taxes">
+        <el-form-item label="Pre payed tax">
           <el-input
             v-model="form.prePay"
-            placeholder="Pre payed taxes"
+            placeholder="Pre payed tax"
             type="number"
             clearable
           ></el-input>
@@ -149,7 +160,8 @@ import api from "@/utils/api";
 export default {
   props: {
     ad: Object,
-    sub: String
+    sub: String,
+    loading: false
   },
   data: () => {
     return {
@@ -161,7 +173,7 @@ export default {
   },
   computed: {
     dialogTitle: function() {
-      return this.showDialogBuy ? "Buy the BillBorad" : "Update My Billboard";
+      return this.showDialogBuy ? "Buy the Billborad" : "Update My Billboard";
     }
   },
   methods: {
@@ -170,8 +182,7 @@ export default {
       this.animState = !this.animState;
     },
     onClick: function() {
-      const boardOwner = false;
-      if (boardOwner) {
+      if (!this.ad.owner) {
         this.buy();
       } else {
         this.update();
@@ -190,38 +201,80 @@ export default {
     bid: function() {
       console.log("bid");
       const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
-      const tx = api.getApi().tx.banners.bid(this.ad.id, this.form.price);
-      transfer.signAndSend(ALICE, ({ events = [], status }) => {
-        if (status.isFinalized) {
-          console.log(
-            "Successful transfer of " +
-              randomAmount +
-              " with hash " +
-              status.asFinalized.toHex()
-          );
-        } else {
-          console.log("Status of transfer: " + status.type);
-        }
+      const loading = this.$loading({
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
       });
+      setTimeout(() => {
+        this.$store.dispatch("basic/buy", {
+          ...this.ad,
+          content: this.form.content,
+          prePay: this.form.prePay,
+          owner: ALICE
+        });
+        this.showDialogBuy = false;
+        loading.close();
+        this.$notify({
+          title: "Success",
+          message: "Buy billboard success",
+          type: "success"
+        });
+      }, 1000);
+      // const tx = api.getApi().tx.banners.bid(this.ad.id, this.form.price);
+      // transfer.signAndSend(ALICE, ({ events = [], status }) => {
+      //   if (status.isFinalized) {
+      //     console.log(
+      //       "Successful transfer of " +
+      //         randomAmount +
+      //         " with hash " +
+      //         status.asFinalized.toHex()
+      //     );
+      //   } else {
+      //     console.log("Status of transfer: " + status.type);
+      //   }
+      // });
     },
     setBoard: function() {
-      console.log("setBoard");
+      // console.log("setBoard");
       const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
-      const tx = api
-        .getApi()
-        .tx.banners.setImageUrl(this.ad.id, this.form.content);
-      transfer.signAndSend(ALICE, ({ events = [], status }) => {
-        if (status.isFinalized) {
-          console.log(
-            "Successful transfer of " +
-              randomAmount +
-              " with hash " +
-              status.asFinalized.toHex()
-          );
-        } else {
-          console.log("Status of transfer: " + status.type);
-        }
+      const loading = this.$loading({
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
       });
+      setTimeout(() => {
+        this.$store.dispatch("basic/put", {
+          ...this.ad,
+          price: this.form.price,
+          content: this.form.content,
+          prePay: this.form.prePay
+        });
+        this.showDialogPut = false;
+        loading.close();
+        this.$notify({
+          title: "Success",
+          message: "Update billboard success",
+          type: "success"
+        });
+      }, 1000);
+      // const tx = api
+      //   .getApi()
+      //   .tx.banners.setImageUrl(this.ad.id, this.form.content);
+      // transfer.signAndSend(ALICE, ({ events = [], status }) => {
+      //   if (status.isFinalized) {
+      //     console.log(
+      //       "Successful transfer of " +
+      //         randomAmount +
+      //         " with hash " +
+      //         status.asFinalized.toHex()
+      //     );
+      //   } else {
+      //     console.log("Status of transfer: " + status.type);
+      //   }
+      // });
     }
   }
 };

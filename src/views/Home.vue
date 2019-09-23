@@ -8,6 +8,7 @@
       <InfoBoard
         class="ad0"
         :ad="boardMap['ad0']"
+        boardOwner="Alice"
       />
       <div class="ads">
         <InfoBoard
